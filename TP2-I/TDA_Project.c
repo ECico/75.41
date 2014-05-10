@@ -5,7 +5,7 @@
 
 	
 
-void substring ( const char * source, int startIndex, int endIndex ,char** value) {
+char* substring ( const char * source, int startIndex, int endIndex) {
     char *result="";
     if (startIndex < 0) {
         printf("startIndex should be a positive value\n");
@@ -21,13 +21,12 @@ void substring ( const char * source, int startIndex, int endIndex ,char** value
         result = (char*)malloc(sizeof(char)*len+1);
         memset (result, '\0', len+1);
         strncpy (result, source+startIndex, len);
-		*value = realloc(*value, strlen(result)+1);
-		strcpy(*value, result);
 	}
+	return result;
 }
 
 
-void copiarcad(char *cadena,char** value){
+char* copiarcad(char *cadena){
 	int fin=0,ini=0;
 	
 	ini=strcspn(cadena,":")+2;
@@ -37,9 +36,7 @@ void copiarcad(char *cadena,char** value){
 	while ((cadena[fin]=='"')||(cadena[fin]==',')||(cadena[fin]==' ')||(cadena[fin]=='\n'))
 		fin=fin-1;
 	fin=fin+1;
-	substring(cadena,ini,fin,value);
-	strcat(*value,"\0");
-	//return value;
+	return substring(cadena,ini,fin);
 }
 
 
@@ -150,52 +147,60 @@ char* Get_color(Project *pProject){
 char* Get_created_at(Project *pProject){
 	return pProject->created_at;
 }
-void Get_followers_id(Project *pProject,char** cadena){
+int Get_followers_id(Project *pProject,char** cadena){
 	int i,cant;
 	*cadena=(char*) malloc(sizeof(char));
 	cant=Get_followers_cont(pProject);
 	for (i=0;i<(cant);i++){
-		realloc(*cadena,(strlen(*cadena)+strlen(pProject->followers[i].pID)+1));
+		if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->followers[i].pID)+1)))
+			return 1;
 		strcat(*cadena,pProject->followers[i].pID);
 		if (i!=(cant-1))
 			strcat(*cadena,", ");
 	}
+	return 0;
 }
-void Get_followers_name(Project *pProject,char** cadena){
+int Get_followers_name(Project *pProject,char** cadena){
 	int i,cant;
 	*cadena=(char*) malloc(sizeof(char));
 	cant=Get_followers_cont(pProject);
 	for (i=0;i<(cant);i++){
-		realloc(*cadena,(strlen(*cadena)+strlen(pProject->followers[i].pName)+1));
+		if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->followers[i].pName)+1)))
+			return 1;
 		strcat(*cadena,pProject->followers[i].pName);
 		if (i!=(cant-1))
 			strcat(*cadena,", ");
 	}
+	return 0;
 }
 char* Get_id(Project *pProject){
 	return pProject->id;
 }
-void Get_members_id(Project *pProject,char** cadena){
+int Get_members_id(Project *pProject,char** cadena){
 	int i,cant;
 	*cadena=(char*) malloc(sizeof(char));
 	cant=Get_members_cont(pProject);
 	for (i=0;i<(cant);i++){
-		realloc(*cadena,(strlen(*cadena)+strlen(pProject->members[i].pID)+1));
+		if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->members[i].pID)+1)))
+			return 1;
 		strcat(*cadena,pProject->members[i].pID);
 		if (i!=(cant-1))
 			strcat(*cadena,", ");
 	}
+	return 0;
 }
-void Get_members_name(Project *pProject,char** cadena){
+int Get_members_name(Project *pProject,char** cadena){
 	int i,cant;
-	*cadena=(char*) malloc(sizeof(char));
 	cant=Get_members_cont(pProject);
+	*cadena=(char*) malloc(sizeof(char)*(cant*255));
 	for (i=0;i<(cant);i++){
-		realloc(*cadena,(strlen(*cadena)+strlen(pProject->members[i].pName)+1));
+		if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->members[i].pName)+1)))
+			return 1;
 		strcat(*cadena,pProject->members[i].pName);
 		if (i!=(cant-1))
 			strcat(*cadena,", ");
 	}
+	return 0;
 }
 char* Get_modified_at(Project *pProject){
 	return pProject->modified_at;
@@ -209,27 +214,31 @@ char* Get_notes(Project *pProject){
 char* Get_public(Project *pProject){
 	return (pProject->public=0)?"False":"True";
 }
-void Get_workspace_id(Project *pProject,char** cadena){
+int Get_workspace_id(Project *pProject,char** cadena){
 	int i,cant;
 	*cadena=(char*) malloc(sizeof(char));
 	cant=Get_workspace_cont(pProject);
 	for (i=0;i<(cant);i++){
-		realloc(*cadena,(strlen(*cadena)+strlen(pProject->workspace[i].pID)+1));
+		if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->workspace[i].pID)+1)))
+			return 1;
 		strcat(*cadena,pProject->workspace[i].pID);
 		if (i!=(cant-1))
 			strcat(*cadena,", ");
 	}
+	return 0;
 }
-void Get_workspace_name(Project *pProject,char** cadena){
+int Get_workspace_name(Project *pProject,char** cadena){
 	int i,cant;
 	*cadena=(char*) malloc(sizeof(char));
 	cant=Get_workspace_cont(pProject);
 	for (i=0;i<(cant);i++){
-		realloc(*cadena,(strlen(*cadena)+strlen(pProject->workspace[i].pName)+1));
+		if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->workspace[i].pName)+1)))
+			return 1;
 		strcat(*cadena,pProject->workspace[i].pName);
 		if (i!=(cant-1))
 			strcat(*cadena,", ");
 	}
+	return 0;
 }
 
 
@@ -288,9 +297,8 @@ void InicProj(Project *pProject){
 
 void CargarProj(Project* pProject,char Archivo[]){
 	
-	int control;
+	char* control;
 	char Linea[255];
-	char* Valor = malloc(255 * sizeof(char));
 	char* sID = malloc(255 * sizeof(char));
 	char* sName = malloc(255 * sizeof(char));
 	InicProj(pProject);
@@ -301,93 +309,80 @@ void CargarProj(Project* pProject,char Archivo[]){
 	if (pFile!=NULL)
 	{
 	do {
-		fgets(Linea,255,pFile);
-		control=fgetc(pFile);
+		control=fgets(Linea,255,pFile);
 		
 			
 		if (strstr(Linea,"archived")!=0) {
-			copiarcad(Linea,&Valor);
-			Set_archived(pProject,Valor);
+			Set_archived(pProject,copiarcad(Linea));
 		}
 		else if (strstr(Linea,"color")!=0) {
-			copiarcad(Linea,&Valor);
-			Set_color(pProject,Valor);
+			Set_color(pProject,copiarcad(Linea));
 		}
 		else if (strstr(Linea,"created_at")!=0) {
-			copiarcad(Linea,&Valor);
-			Set_created_at(pProject,Valor);
+			Set_created_at(pProject,copiarcad(Linea));
 		}
 		else if (strstr(Linea,"followers")!=0) {
-			while ((strstr(Linea,"]")==0)&&(control!=EOF)) {
+			while ((strstr(Linea,"]")==0)&&(control!=NULL)) {
 				if (strstr(Linea,"}")!=0){
 					Set_followers(pProject,sID,sName);
 					strcpy(sID,"");
 					strcpy(sName,"");
 				}
 				else if (strstr(Linea,"id")!=0) 
-					copiarcad(Linea,&sID);
+					sID=copiarcad(Linea);
 				else if (strstr(Linea,"name")!=0) 
-					copiarcad(Linea,&sName);
-				fgets(Linea,255,pFile);
-				control=fgetc(pFile);
+					sName=copiarcad(Linea);
+				control=fgets(Linea,255,pFile);
 			}
 		}
 		else if (strstr(Linea,"id")!=0) {
-			copiarcad(Linea,&Valor);
-			Set_id(pProject,Valor);
+			Set_id(pProject,copiarcad(Linea));
 		}
 		else if (strstr(Linea,"members")!=0) {
-			while ((strstr(Linea,"]")==0)&&(control!=EOF)) {
+			while ((strstr(Linea,"]")==0)&&(control!=NULL)) {
 				if (strstr(Linea,"}")!=0){
 					Set_members(pProject,sID,sName);
 					strcpy(sID,"");
 					strcpy(sName,"");
 				}
 				else if (strstr(Linea,"id")!=0) 
-					copiarcad(Linea,&sID);
+					sID=copiarcad(Linea);
 				else if (strstr(Linea,"name")!=0) 
-					copiarcad(Linea,&sName);
-				fgets(Linea,255,pFile);
-				control=fgetc(pFile);
+					sName=copiarcad(Linea);
+				control=fgets(Linea,255,pFile);
 			}
 		}
 		else if (strstr(Linea,"modified_at")!=0) {
-			copiarcad(Linea,&Valor);
-			Set_modified_at(pProject,Valor);
+			Set_modified_at(pProject,copiarcad(Linea));
 		}
 		else if (strstr(Linea,"name")!=0) {
-			copiarcad(Linea,&Valor);
-			Set_name(pProject,Valor);
+			Set_name(pProject,copiarcad(Linea));
 		}
 		else if (strstr(Linea,"notes")!=0) {
-			copiarcad(Linea,&Valor);
-			Set_notes(pProject,Valor);
+			Set_notes(pProject,copiarcad(Linea));
 		}
 		else if (strstr(Linea,"public")!=0) {
-			copiarcad(Linea,&Valor);
-			Set_public(pProject,Valor);
+			Set_public(pProject,copiarcad(Linea));
 		}
 		else if (strstr(Linea,"workspace")!=0) {
-			while ((strstr(Linea,"]")==0)&&(control!=EOF)) {
+			while ((strstr(Linea,"]")==0)&&(control!=NULL)) {
 				if (strstr(Linea,"}")!=0){
 					Set_workspace(pProject,sID,sName);
 					strcpy(sID,"");
 					strcpy(sName,"");
 				}
 				else if (strstr(Linea,"id")!=0) 
-					copiarcad(Linea,&sID);
+					sID=copiarcad(Linea);
 				else if (strstr(Linea,"name")!=0) 
-					copiarcad(Linea,&sName);
-				fgets(Linea,255,pFile);
-				control=fgetc(pFile);
+					sName=copiarcad(Linea);
+				control=fgets(Linea,255,pFile);
 			}
 		}
 		
 	
-	} while(control!=EOF);
+	} while(control!=NULL);
 	free(sName);
 	free(sID);
-	free(Valor);
 	
 	fclose(pFile);
 	
