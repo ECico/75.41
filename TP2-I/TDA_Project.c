@@ -3,7 +3,7 @@
 #include <string.h>
 #include "TDA_Project.h"
 
-	
+
 
 char* substring ( const char * source, int startIndex, int endIndex) {
     char *result="";
@@ -11,7 +11,7 @@ char* substring ( const char * source, int startIndex, int endIndex) {
         printf("startIndex should be a positive value\n");
     }
     else if (endIndex <= startIndex) {
-        /*printf("endIdnex should larger than startIndex\n");*/
+        //printf("endIdnex should larger than startIndex\n");
     } else if (startIndex > (strlen(source))) {
         printf("startIdnex should smaller than source length\n");
     } else if (endIndex > (strlen(source)+1)) {
@@ -49,11 +49,15 @@ char* copiarcad(char *cadena){
 
 
 void CrearProj(void *pProject){
-	pProject=(Project*) malloc(sizeof(Project));
+	//pProject=(Project*) malloc(sizeof(Project));
 }
 
 void EliminarProj(Project *pProject){
+/*	free(pProject->followers);
+	free(pProject->members);
+	free(pProject->workspace);
 	free(pProject);
+	*/
 }
 
 
@@ -149,11 +153,12 @@ char* Get_created_at(Project *pProject){
 }
 int Get_followers_id(Project *pProject,char** cadena){
 	int i,cant;
-	*cadena=(char*) malloc(sizeof(char));
 	cant=Get_followers_cont(pProject);
+	*cadena=(char*) malloc(sizeof(char)*(cant*255));
+	strcpy(*cadena,"");
 	for (i=0;i<(cant);i++){
-		if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->followers[i].pID)+1)))
-			return 1;
+		//if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->followers[i].pID)+1)))
+		//	return 1;
 		strcat(*cadena,pProject->followers[i].pID);
 		if (i!=(cant-1))
 			strcat(*cadena,", ");
@@ -162,11 +167,12 @@ int Get_followers_id(Project *pProject,char** cadena){
 }
 int Get_followers_name(Project *pProject,char** cadena){
 	int i,cant;
-	*cadena=(char*) malloc(sizeof(char));
 	cant=Get_followers_cont(pProject);
+	*cadena=(char*) malloc(sizeof(char)*(cant*255));
+	strcpy(*cadena,"");
 	for (i=0;i<(cant);i++){
-		if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->followers[i].pName)+1)))
-			return 1;
+		//if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->followers[i].pName)+1)))
+		//	return 1;
 		strcat(*cadena,pProject->followers[i].pName);
 		if (i!=(cant-1))
 			strcat(*cadena,", ");
@@ -178,11 +184,12 @@ char* Get_id(Project *pProject){
 }
 int Get_members_id(Project *pProject,char** cadena){
 	int i,cant;
-	*cadena=(char*) malloc(sizeof(char));
 	cant=Get_members_cont(pProject);
+	*cadena=(char*) malloc(sizeof(char)*(cant*255));
+	strcpy(*cadena,"");
 	for (i=0;i<(cant);i++){
-		if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->members[i].pID)+1)))
-			return 1;
+		//if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->members[i].pID)+1)))
+		//	return 1;
 		strcat(*cadena,pProject->members[i].pID);
 		if (i!=(cant-1))
 			strcat(*cadena,", ");
@@ -193,9 +200,10 @@ int Get_members_name(Project *pProject,char** cadena){
 	int i,cant;
 	cant=Get_members_cont(pProject);
 	*cadena=(char*) malloc(sizeof(char)*(cant*255));
+	strcpy(*cadena,"");
 	for (i=0;i<(cant);i++){
-		if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->members[i].pName)+1)))
-			return 1;
+		//if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->members[i].pName)+1)))
+		//	return 1;
 		strcat(*cadena,pProject->members[i].pName);
 		if (i!=(cant-1))
 			strcat(*cadena,", ");
@@ -216,11 +224,12 @@ char* Get_public(Project *pProject){
 }
 int Get_workspace_id(Project *pProject,char** cadena){
 	int i,cant;
-	*cadena=(char*) malloc(sizeof(char));
 	cant=Get_workspace_cont(pProject);
+	*cadena=(char*) malloc(sizeof(char)*(cant*255));
+	strcpy(*cadena,"");
 	for (i=0;i<(cant);i++){
-		if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->workspace[i].pID)+1)))
-			return 1;
+		//if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->workspace[i].pID)+1)))
+		//	return 1;
 		strcat(*cadena,pProject->workspace[i].pID);
 		if (i!=(cant-1))
 			strcat(*cadena,", ");
@@ -229,11 +238,12 @@ int Get_workspace_id(Project *pProject,char** cadena){
 }
 int Get_workspace_name(Project *pProject,char** cadena){
 	int i,cant;
-	*cadena=(char*) malloc(sizeof(char));
 	cant=Get_workspace_cont(pProject);
+	*cadena=(char*) malloc(sizeof(char)*(cant*255));
+	strcpy(*cadena,"");
 	for (i=0;i<(cant);i++){
-		if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->workspace[i].pName)+1)))
-			return 1;
+		//if (realloc(*cadena,(strlen(*cadena)+strlen(pProject->workspace[i].pName)+1)))
+		//	return 1;
 		strcat(*cadena,pProject->workspace[i].pName);
 		if (i!=(cant-1))
 			strcat(*cadena,", ");
@@ -389,3 +399,9 @@ void CargarProj(Project* pProject,char Archivo[]){
 	}
 	
 }
+
+
+
+
+	
+	

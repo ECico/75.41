@@ -15,7 +15,10 @@ int main ( int argc, char* argv[] )
 		char* Salida="";
 		char fecha[11]="";
 		printf("identificador: %s\n",Get_id(&pProject));
-		Get_members_name(&pProject,&Salida);
+		if (Get_members_name(&pProject,&Salida)!=0){
+			printf("Error al consultar los Miembros.\n");
+			return 0;
+		}
 		printf("miembros: %s\n",Salida);
 		printf("nombre: %s\n",Get_name(&pProject));
 		strncpy(fecha,Get_created_at(&pProject),10);
