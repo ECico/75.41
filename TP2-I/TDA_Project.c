@@ -99,6 +99,7 @@ void Set_color(Project *pProject,char *Valor){
 }
 void Set_created_at(Project *pProject,char *Valor){
 	strcpy(pProject->created_at,Valor);
+	strcpy(pProject->created_at+10,"\0");
 }
 void Set_followers(Project *pProject,char *sID,char *sName){
 	int pos=Get_followers_cont(pProject);
@@ -117,6 +118,7 @@ void Set_members(Project *pProject,char *sID,char *sName){
 }
 void Set_modified_at(Project *pProject,char *Valor){
 	strcpy(pProject->modified_at,Valor);
+	strcpy(pProject->modified_at+10,"\0");
 }
 void Set_name(Project *pProject,char *Valor){
 	strcpy(pProject->name,Valor);
@@ -301,105 +303,154 @@ void InicProj(Project *pProject){
 
 
 
+int TraerLinea(char** Cadena,char** Salida,size_t* pos){
+	char* cBusq="{}[],";
+	size_t posAnt;
+	
+	posAnt=*pos;
+	*pos=strcspn(*Cadena+posAnt,cBusq)+posAnt;
+	if (posAnt==*pos)
+		*pos=*pos+1;
+	if ((*pos==0)||(*pos>strlen(*Cadena)))
+		return 0;
+	*Salida=substring(*Cadena,posAnt,*pos);
+	//*pos=*pos+1;
+	return 1;
+}
+
 
 
 
 
 void CargarProj(Project* pProject,char Archivo[]){
 	
-	char* control;
-	char Linea[255];
+	size_t fLen;
+	char* Linea;
 	char* sID = malloc(255 * sizeof(char));
 	char* sName = malloc(255 * sizeof(char));
+	int EsperaFin=0;
 	InicProj(pProject);
 	
-	FILE *pFile;
-	pFile = fopen(Archivo,"r");
-	
-	if (pFile!=NULL)
-	{
-	do {
-		control=fgets(Linea,255,pFile);
-		
+	FILE* pFile = fopen(Archivo, "r");
+	if (pFile!=NULL){
+		fseek(pFile,0,SEEK_END);
+		fLen=ftell(pFile);
+		fseek(pFile,0,SEEK_SET);
 			
-		if (strstr(Linea,"archived")!=0) {
-			Set_archived(pProject,copiarcad(Linea));
-		}
-		else if (strstr(Linea,"color")!=0) {
-			Set_color(pProject,copiarcad(Linea));
-		}
-		else if (strstr(Linea,"created_at")!=0) {
-			Set_created_at(pProject,copiarcad(Linea));
-		}
-		else if (strstr(Linea,"followers")!=0) {
-			while ((strstr(Linea,"]")==0)&&(control!=NULL)) {
-				if (strstr(Linea,"}")!=0){
+		Linea = malloc(fLen);
+		if (fread(Linea,fLen,1,pFile)==0)
+			return;
+		
+		fclose(pFile);
+		
+		
+		
+		char* nLinea;
+		size_t pos=0;
+		
+		while(TraerLinea(&Linea,&nLinea,&pos)!=0){
+			
+			if (strstr(nLinea,"archived")!=0) {
+				Set_archived(pProject,copiarcad(nLinea));
+			}
+			else if (strstr(nLinea,"color")!=0) {
+				Set_color(pProject,copiarcad(nLinea));
+			}
+			else if (strstr(nLinea,"created_at")!=0) {
+				Set_created_at(pProject,copiarcad(nLinea));
+			}
+			else if (strstr(nLinea,"followers")!=0) {
+				EsperaFin=0;
+				while ((strstr(nLinea,"]")==0)&&((EsperaFin==1)||(strstr(nLinea,"}")==0))&&(TraerLinea(&Linea,&nLinea,&pos)!=0)){
+					if (strstr(nLinea,"}")!=0){
+						Set_followers(pProject,sID,sName);
+						strcpy(sID,"");
+						strcpy(sName,"");
+					}
+					else if (strstr(nLinea,"[")!=0)
+						EsperaFin=1;
+					else if (strstr(nLinea,"id")!=0) 
+						sID=copiarcad(nLinea);
+					else if (strstr(nLinea,"name")!=0) 
+						sName=copiarcad(nLinea);
+				}
+				if (EsperaFin==0){
 					Set_followers(pProject,sID,sName);
 					strcpy(sID,"");
 					strcpy(sName,"");
 				}
-				else if (strstr(Linea,"id")!=0) 
-					sID=copiarcad(Linea);
-				else if (strstr(Linea,"name")!=0) 
-					sName=copiarcad(Linea);
-				control=fgets(Linea,255,pFile);
 			}
-		}
-		else if (strstr(Linea,"id")!=0) {
-			Set_id(pProject,copiarcad(Linea));
-		}
-		else if (strstr(Linea,"members")!=0) {
-			while ((strstr(Linea,"]")==0)&&(control!=NULL)) {
-				if (strstr(Linea,"}")!=0){
+			else if (strstr(nLinea,"id")!=0) {
+				Set_id(pProject,copiarcad(nLinea));
+			}
+			else if (strstr(nLinea,"members")!=0) {
+				EsperaFin=0;
+				while ((strstr(nLinea,"]")==0)&&((EsperaFin==1)||(strstr(nLinea,"}")==0))&&(TraerLinea(&Linea,&nLinea,&pos)!=0)){
+					if (strstr(nLinea,"}")!=0){
+						Set_members(pProject,sID,sName);
+						strcpy(sID,"");
+						strcpy(sName,"");
+					}
+					else if (strstr(nLinea,"[")!=0)
+						EsperaFin=1;
+					else if (strstr(nLinea,"id")!=0) 
+						sID=copiarcad(nLinea);
+					else if (strstr(nLinea,"name")!=0) 
+						sName=copiarcad(nLinea);
+				}
+				if (EsperaFin==0){
 					Set_members(pProject,sID,sName);
 					strcpy(sID,"");
 					strcpy(sName,"");
 				}
-				else if (strstr(Linea,"id")!=0) 
-					sID=copiarcad(Linea);
-				else if (strstr(Linea,"name")!=0) 
-					sName=copiarcad(Linea);
-				control=fgets(Linea,255,pFile);
 			}
-		}
-		else if (strstr(Linea,"modified_at")!=0) {
-			Set_modified_at(pProject,copiarcad(Linea));
-		}
-		else if (strstr(Linea,"name")!=0) {
-			Set_name(pProject,copiarcad(Linea));
-		}
-		else if (strstr(Linea,"notes")!=0) {
-			Set_notes(pProject,copiarcad(Linea));
-		}
-		else if (strstr(Linea,"public")!=0) {
-			Set_public(pProject,copiarcad(Linea));
-		}
-		else if (strstr(Linea,"workspace")!=0) {
-			while ((strstr(Linea,"]")==0)&&(control!=NULL)) {
-				if (strstr(Linea,"}")!=0){
+			else if (strstr(nLinea,"modified_at")!=0) {
+				Set_modified_at(pProject,copiarcad(nLinea));
+			}
+			else if (strstr(nLinea,"name")!=0) {
+				Set_name(pProject,copiarcad(nLinea));
+			}
+			else if (strstr(nLinea,"notes")!=0) {
+				Set_notes(pProject,copiarcad(nLinea));
+			}
+			else if (strstr(nLinea,"public")!=0) {
+				Set_public(pProject,copiarcad(nLinea));
+			}
+			else if (strstr(nLinea,"workspace")!=0) {
+				EsperaFin=0;
+				while ((strstr(nLinea,"]")==0)&&((EsperaFin==1)||(strstr(nLinea,"}")==0))&&(TraerLinea(&Linea,&nLinea,&pos)!=0)){
+					if (strstr(nLinea,"}")!=0){
+						Set_workspace(pProject,sID,sName);
+						strcpy(sID,"");
+						strcpy(sName,"");
+					}
+					else if (strstr(nLinea,"[")!=0)
+						EsperaFin=1;
+					else if (strstr(nLinea,"id")!=0) 
+						sID=copiarcad(nLinea);
+					else if (strstr(nLinea,"name")!=0) 
+						sName=copiarcad(nLinea);
+				}
+				if (EsperaFin==0){
 					Set_workspace(pProject,sID,sName);
 					strcpy(sID,"");
 					strcpy(sName,"");
 				}
-				else if (strstr(Linea,"id")!=0) 
-					sID=copiarcad(Linea);
-				else if (strstr(Linea,"name")!=0) 
-					sName=copiarcad(Linea);
-				control=fgets(Linea,255,pFile);
 			}
+			
+			
+			
 		}
+
 		
-	
-	} while(control!=NULL);
-	free(sName);
-	free(sID);
-	
-	fclose(pFile);
+		
+		free(Linea);
+		free(sName);
+		free(sID);
 	
 	}
 	
 }
-
 
 
 

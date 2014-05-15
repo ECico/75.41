@@ -13,7 +13,6 @@ int main ( int argc, char* argv[] )
 		CargarProj(&pProject,argv[1]);
 		
 		char* Salida="";
-		char fecha[11]="";
 		printf("identificador: %s\n",Get_id(&pProject));
 		if (Get_members_name(&pProject,&Salida)!=0){
 			printf("Error al consultar los Miembros.\n");
@@ -21,10 +20,8 @@ int main ( int argc, char* argv[] )
 		}
 		printf("miembros: %s\n",Salida);
 		printf("nombre: %s\n",Get_name(&pProject));
-		strncpy(fecha,Get_created_at(&pProject),10);
-		printf("fecha de creacion: %s\n",fecha);
-		strncpy(fecha,Get_modified_at(&pProject),10);
-		printf("ultima modificacion: %s\n",fecha);
+		printf("fecha de creacion: %s\n",Get_created_at(&pProject));
+		printf("ultima modificacion: %s\n",Get_modified_at(&pProject));
 		free(Salida);
 		
 		EliminarProj(&pProject);
